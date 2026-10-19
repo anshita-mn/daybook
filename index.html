@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daybook</title>
 <meta name="theme-color" content="#06080b">
+<script>try{var s=JSON.parse(localStorage.getItem("db.skin"));if(s)document.documentElement.dataset.skin=s}catch(e){}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,7 +15,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Anton&family=Archivo+Narrow:wght@500;700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Anton&family=Archivo+Narrow:wght@500;700&family=Space+Mono:wght@400;700&family=Grenze+Gotisch:wght@500;700&family=Nunito:wght@500;700;800&family=DM+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: a living halftone ink field behind everything; a layered script/condensed masthead; tasks printed as tracklists on distressed xerox posters taped over the field. Single committed look: night wall, bone paper, cyan + acid riso ink. */
 :root{
@@ -151,10 +152,11 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 .main{min-width:0;background:transparent;border:0;text-align:left;padding:0;color:var(--ink)}
 .t{position:relative;display:inline;font:700 18px/1.2 var(--body);overflow-wrap:anywhere}
 .scrib{position:absolute;left:-3px;right:-3px;top:42%;height:12px;width:calc(100% + 6px);overflow:visible;pointer-events:none}
-.scrib path{fill:none;stroke:var(--blood);stroke-width:2.6;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1}
-.done .scrib path{stroke-dashoffset:0}
-.striking .scrib path{animation:draw .42s cubic-bezier(.6,0,.3,1) forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
+.scrib{opacity:0;clip-path:inset(0 100% 0 0)}
+.scrib path{fill:none;stroke:var(--blood);stroke-width:2.6;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.done .scrib{opacity:1;clip-path:inset(0)}
+.striking .scrib{opacity:1;animation:draw .42s cubic-bezier(.6,0,.3,1) forwards}
+@keyframes draw{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
 .done .t{color:rgba(12,14,17,.55)}
 .sub{display:flex;gap:10px;flex-wrap:wrap;margin-top:3px;font:400 10.5px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:rgba(12,14,17,.6)}
 .sub .ar{color:var(--pc);font-weight:700}
@@ -225,7 +227,132 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 .toast:not([hidden]){animation:paste .4s cubic-bezier(.2,.9,.25,1.3)}
 .toast button{border:0;background:var(--ink);color:var(--bone);padding:4px 8px;font:inherit}
 
-@media (max-width:520px){.detail{padding-left:0}.row{grid-template-columns:20px 22px minmax(0,1fr) auto;gap:8px}.stamp{top:auto;bottom:28px}}
+@media (max-width:520px){.detail{padding-left:0}.row{grid-template-columns:20px 22px minmax(0,1fr) auto;gap:8px}.mast{min-height:235px}.stamp{top:auto;bottom:52px}.byline{gap:4px 10px;font-size:10.5px;letter-spacing:.08em}}
+/* ---------- look picker (all skins) ---------- */
+.byline>*{background:color-mix(in srgb,var(--void) 72%,transparent);padding:1px 4px}
+.night{display:none}
+.looks{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.looks:not([hidden]) .looks-box{animation:paste .45s cubic-bezier(.2,.9,.25,1.2)}
+.looks-box{--rot:0deg;width:min(560px,100%);background:var(--bone);color:var(--ink);padding:20px 18px 18px;display:flex;flex-direction:column;gap:12px;max-height:100%;overflow:auto}
+.looks-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.looks-top h2{margin:0;font:400 34px/1 var(--cond);text-transform:uppercase}
+.looks-top .out{color:var(--ink)}
+.looks-note{margin:0;font:400 12.5px/1.5 var(--mono);opacity:.75}
+.looks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px}
+.look-card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:10px;border:2px solid transparent;background:transparent;color:var(--ink);transition:transform .2s cubic-bezier(.3,1.6,.5,1),border-color .15s}
+.look-card:hover{transform:translateY(-3px) rotate(-1deg)}
+.look-card[aria-pressed="true"]{border-color:var(--ink)}
+.lc-art{position:relative;display:block;height:120px;overflow:hidden}
+.lc-art b,.lc-art em{position:absolute;font-style:normal}
+.lc-wall .lc-art{background:#06080b radial-gradient(#8fe6ff 1.2px,transparent 1.6px) 0 0/7px 7px}
+.lc-wall .lc-art b{left:10px;top:8px;font:400 46px/1 "Anton",Impact,sans-serif;color:#eef2ee}
+.lc-wall .lc-art em{right:10px;bottom:6px;font:400 40px/1 "Pinyon Script",cursive;color:#8fe6ff;transform:rotate(-6deg)}
+.lc-whimsy .lc-art{background:radial-gradient(60% 70% at 70% 30%,rgba(255,158,207,.65),transparent 70%),radial-gradient(50% 60% at 20% 80%,rgba(201,167,255,.6),transparent 70%),#160e1c;border-radius:16px}
+.lc-whimsy .lc-art b{left:12px;top:8px;font:700 44px/1 "Grenze Gotisch",serif;color:#f7e8f4}
+.lc-whimsy .lc-art em{right:12px;bottom:6px;font:400 40px/1 "Pinyon Script",cursive;color:#ff9ecf;text-shadow:0 0 14px rgba(255,158,207,.7)}
+.lc-whimsy .lc-art svg{position:absolute;right:18px;top:14px;width:40px;fill:#2a1830;filter:drop-shadow(0 0 6px rgba(255,158,207,.6))}
+.lc-name{font:700 15px var(--body)}
+.lc-desc{font:400 11px var(--mono);opacity:.7;text-transform:uppercase;letter-spacing:.06em}
+
+/* ======================================================
+   DARK WHIMSY — pastel goth: plum night, pink/lilac haze,
+   moon, bats, ink swirls, gothic letters, soft paper
+   ====================================================== */
+html[data-skin="whimsy"]{
+  --void:#160e1c; --bone:#f7eaf3; --bone-2:#ecd8e8; --ink:#2a1830; --ash:#b19bbd; --pale:#f7e8f4;
+  --cyan:#ff9ecf; --acid:#c9a7ff; --ember:#ffe7b3; --rose:#ffb3d9; --blood:#c93d7c;
+  --studies:#c9a7ff; --projects:#9ff0d1; --travel:#ffc59e; --personal:#ff9ecf;
+  --p-studies:#6a3fb8; --p-projects:#1d7a5b; --p-travel:#a65318; --p-personal:#b02a6e;
+  --cond:"Grenze Gotisch","UnifrakturCook",Georgia,serif;
+  --body:"Nunito",ui-rounded,system-ui,sans-serif;
+  --mono:"DM Mono",ui-monospace,Menlo,monospace;
+}
+[data-skin="whimsy"] .night{display:block;position:fixed;inset:0;pointer-events:none;z-index:1}
+[data-skin="whimsy"] #stars i{position:absolute;width:var(--s);height:var(--s);border-radius:50%;background:#fff3fb;box-shadow:0 0 6px #ffc6e6;opacity:.2;animation:twinkle var(--t) ease-in-out var(--d) infinite}
+@keyframes twinkle{50%{opacity:.95}}
+[data-skin="whimsy"] .moon{position:absolute;right:max(5vw,18px);top:calc(14px + env(safe-area-inset-top,0px));width:clamp(64px,13vw,120px);filter:drop-shadow(0 0 22px rgba(255,214,236,.7)) drop-shadow(0 0 60px rgba(255,158,207,.35));animation:moon 9s ease-in-out infinite;transform-origin:50% -40%}
+@keyframes moon{50%{transform:rotate(-6deg)}}
+[data-skin="whimsy"] .swirl{position:absolute;fill:none;stroke:rgba(247,232,244,.13);stroke-width:1.6;stroke-linecap:round}
+[data-skin="whimsy"] .sw1{width:260px;left:-70px;bottom:6%;animation:spin 60s linear infinite}
+[data-skin="whimsy"] .sw2{width:180px;right:-40px;top:38%;animation:spin 80s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+[data-skin="whimsy"] .batfly{position:absolute;left:-60px;width:44px;opacity:.85}
+[data-skin="whimsy"] .batfly svg{width:100%;overflow:visible}
+[data-skin="whimsy"] .batfly .wing{fill:#2a1830;stroke:rgba(255,158,207,.45);stroke-width:.5;transform-origin:0 0;animation:flap .32s ease-in-out infinite alternate}
+@keyframes flap{to{transform:scaleY(.35)}}
+[data-skin="whimsy"] .b1{top:16%;animation:fly 23s linear infinite}
+[data-skin="whimsy"] .b2{top:9%;width:30px;animation:fly 31s linear 7s infinite}
+[data-skin="whimsy"] .b3{top:30%;width:24px;animation:fly 37s linear 15s infinite}
+@keyframes fly{0%{transform:translate(0,0)}25%{transform:translate(28vw,-6vh)}50%{transform:translate(55vw,4vh)}75%{transform:translate(82vw,-8vh)}100%{transform:translate(calc(100vw + 120px),2vh)}}
+[data-skin="whimsy"] #field{filter:blur(14px) saturate(1.25);opacity:.9}
+[data-skin="whimsy"] .vignette{background:radial-gradient(120% 90% at 50% 40%,transparent 35%,rgba(10,4,14,.8) 100%)}
+[data-skin="whimsy"] .leak{opacity:.4;background:radial-gradient(40% 40% at 92% 6%,#ffd6ec,transparent 70%),radial-gradient(50% 50% at 0% 100%,#7d4fb8,transparent 70%)}
+[data-skin="whimsy"] .scan,[data-skin="whimsy"] .scratch{display:none}
+[data-skin="whimsy"] .grain{opacity:.1;mix-blend-mode:soft-light}
+[data-skin="whimsy"] .sweep{background:linear-gradient(180deg,transparent,rgba(255,158,207,.1) 35%,rgba(255,240,250,.45) 50%,rgba(201,167,255,.1) 65%,transparent)}
+/* masthead */
+[data-skin="whimsy"] .echo span{font-weight:700;text-transform:none;-webkit-text-stroke:1px var(--acid);letter-spacing:0}
+[data-skin="whimsy"] .echo span:first-child{color:var(--pale);text-shadow:0 0 24px rgba(255,158,207,.35)}
+[data-skin="whimsy"] h1.script{filter:none;color:var(--cyan);text-shadow:0 0 12px rgba(255,158,207,.8),0 0 40px rgba(201,167,255,.5);animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:rotate(-4deg) translateY(-6px)}}
+[data-skin="whimsy"] h1.script.glitch{animation:shimmer .6s ease-out 1}
+@keyframes shimmer{40%{text-shadow:0 0 24px #fff,0 0 60px var(--cyan)}}
+[data-skin="whimsy"] .stamp{border-radius:50%;width:92px;height:92px;display:grid;place-content:center;border:1.5px dashed var(--ember);color:var(--ember);mix-blend-mode:normal;top:auto;bottom:34px;right:clamp(90px,18vw,170px);transform:rotate(-8deg)}
+[data-skin="whimsy"] .stamp b{font-weight:700;font-size:32px}
+[data-skin="whimsy"] .byline{color:var(--ash)}
+[data-skin="whimsy"] .byline .status{color:var(--acid)}
+/* add strip */
+[data-skin="whimsy"] .add{background:rgba(42,24,48,.72);backdrop-filter:blur(10px);border:1px solid rgba(201,167,255,.35);border-radius:22px;transform:none;box-shadow:0 0 40px -10px rgba(255,158,207,.35)}
+[data-skin="whimsy"] .add::before,[data-skin="whimsy"] .add::after{background:repeating-linear-gradient(90deg,rgba(255,158,207,.75) 0 6px,rgba(255,198,226,.75) 6px 12px);border-radius:2px}
+[data-skin="whimsy"] .prompt{color:var(--cyan)}
+[data-skin="whimsy"] .prompt::after{content:"";display:none}
+[data-skin="whimsy"] #newTitle{caret-color:var(--cyan)}
+[data-skin="whimsy"] #newTitle::placeholder{color:#8a7596}
+[data-skin="whimsy"] .chip{border-radius:999px;border-color:rgba(201,167,255,.3);color:var(--ash)}
+[data-skin="whimsy"] .chip .dot{border-radius:50%}
+[data-skin="whimsy"] .chip[aria-pressed="true"]{color:var(--ink);border-color:var(--c,var(--pale))}
+[data-skin="whimsy"] .detail .chip{color:rgba(42,24,48,.75);border-color:rgba(42,24,48,.3)}
+[data-skin="whimsy"] .detail .chip[aria-pressed="true"]{color:var(--bone);border-color:var(--ink)}
+[data-skin="whimsy"] .btn{border-radius:999px;background:linear-gradient(135deg,var(--cyan),var(--acid));color:var(--ink);text-transform:none;font-weight:700;box-shadow:0 4px 18px -6px rgba(255,158,207,.8)}
+[data-skin="whimsy"] input[type=date]{border-radius:999px;border-color:rgba(201,167,255,.3)}
+[data-skin="whimsy"] .hint{color:#8f7a9c}
+[data-skin="whimsy"] .hint code{color:var(--cyan)}
+/* tabs as ribbons */
+[data-skin="whimsy"] .tab{clip-path:none;border-radius:999px;background:rgba(247,232,244,.12);color:var(--pale);border:1px solid rgba(201,167,255,.35);text-transform:none;font-weight:700;font-size:21px;padding:6px 14px 5px;backdrop-filter:blur(6px)}
+[data-skin="whimsy"] .tab[aria-selected="true"]{background:var(--pale);color:var(--ink);box-shadow:0 0 22px -4px rgba(255,158,207,.8)}
+/* posters become soft storybook cards */
+[data-skin="whimsy"] .pw{filter:drop-shadow(0 16px 26px rgba(10,2,16,.55)) drop-shadow(0 0 30px rgba(255,158,207,.12));transform:rotate(calc(var(--rot) * .45)) perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
+[data-skin="whimsy"] .poster{clip-path:none;border-radius:22px;
+  background-image:radial-gradient(rgba(176,42,110,.09) 1.1px,transparent 1.6px),radial-gradient(70% 50% at 100% 0%,rgba(201,167,255,.35),transparent 70%),radial-gradient(60% 40% at 0% 100%,rgba(255,158,207,.3),transparent 70%);
+  background-size:14px 14px,100% 100%,100% 100%;box-shadow:inset 0 0 0 6px var(--bone),inset 0 0 0 7.5px rgba(42,24,48,.2)}
+[data-skin="whimsy"] .poster::after{content:"";position:absolute;right:16px;bottom:12px;width:46px;height:20px;opacity:.12;pointer-events:none;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-15 -7 30 13'><path fill='%232a1830' d='M0 0 C-2-3-5-4-7-2-8-5-11-6-14-5-11-4-11-1-12 1-9 0-7 1-5 3-3 2-1 2 0 4 1 2 3 2 5 3 7 1 9 0 12 1 11-1 11-4 14-5 11-6 8-5 7-2 5-4 2-3 0 0Z'/></svg>") no-repeat center/contain}
+[data-skin="whimsy"] .tape{border-radius:3px;background:repeating-linear-gradient(90deg,rgba(201,167,255,.8) 0 7px,rgba(230,214,255,.8) 7px 14px)}
+[data-skin="whimsy"] .poster h2{border-bottom:2px dotted rgba(42,24,48,.45)}
+[data-skin="whimsy"] .poster h2 .big,[data-skin="whimsy"] .cd-top .big,[data-skin="whimsy"] .looks-top h2{text-transform:none;font-weight:700;letter-spacing:0}
+[data-skin="whimsy"] .poster h2 .scr{color:var(--p-personal)}
+[data-skin="whimsy"] .trk li{border-top:1px dotted rgba(42,24,48,.25)}
+[data-skin="whimsy"] .check{border-radius:50%}
+[data-skin="whimsy"] .t{font-weight:700}
+[data-skin="whimsy"] .detail input,[data-skin="whimsy"] .detail textarea,[data-skin="whimsy"] .auth input{border-radius:12px;border-color:rgba(42,24,48,.25)}
+[data-skin="whimsy"] .ghost{border-radius:999px}
+[data-skin="whimsy"] .detail .btn,[data-skin="whimsy"] .auth .btn{background:var(--ink);color:var(--bone);box-shadow:none}
+[data-skin="whimsy"] .void .scr{filter:none;color:var(--cyan);text-shadow:0 0 18px rgba(255,158,207,.6)}
+[data-skin="whimsy"] .toast{clip-path:none;border-radius:999px;transform:translateX(-50%);box-shadow:0 0 30px -6px rgba(255,158,207,.8)}
+[data-skin="whimsy"] .toast button{border-radius:999px}
+/* countdown */
+[data-skin="whimsy"] .cd-num{font-weight:700;text-shadow:4px 3px 0 rgba(255,158,207,.8),-3px -2px 0 rgba(201,167,255,.75)}
+[data-skin="whimsy"] .cell{border-radius:8px;border-width:1px}
+[data-skin="whimsy"] .cell.zero::after{content:"";position:absolute;inset:0}
+[data-skin="whimsy"] .cd-new{border-radius:20px;background:rgba(42,24,48,.72);border-color:rgba(201,167,255,.35)}
+[data-skin="whimsy"] .cd-new .lbl{color:var(--cyan)}
+/* notes + picker */
+[data-skin="whimsy"] .pad .ink{border-radius:999px}
+[data-skin="whimsy"] .looks{background:rgba(22,14,28,.6)}
+[data-skin="whimsy"] .looks-box{border-radius:26px;box-shadow:0 0 60px -10px rgba(255,158,207,.5)}
+[data-skin="whimsy"] .look-card{border-radius:20px}
+@media (max-width:520px){[data-skin="whimsy"] .mast{min-height:255px}[data-skin="whimsy"] .stamp{width:74px;height:74px;right:6px;bottom:52px}[data-skin="whimsy"] .stamp b{font-size:26px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.sweep{display:none}}
 </style>
 
@@ -245,6 +372,15 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 <div class="leak" aria-hidden="true"></div>
 <div class="scan" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
+<div class="night" aria-hidden="true">
+  <div id="stars"></div>
+  <svg class="moon" viewBox="0 0 120 120"><defs><radialGradient id="mg" cx="40%" cy="40%"><stop offset="0" stop-color="#fff6e0"/><stop offset="1" stop-color="#f3c9e4"/></radialGradient></defs><path d="M78 12a50 50 0 1 0 30 78A42 42 0 1 1 78 12z" fill="url(#mg)"/></svg>
+  <svg class="swirl sw1" viewBox="0 0 200 200"><path d="M100 100m0-6a6 6 0 1 1-6 6 12 12 0 1 1 12 12 20 20 0 1 1-20-20 30 30 0 1 1 30 30 42 42 0 1 1-42-42 56 56 0 1 1 56 56"/></svg>
+  <svg class="swirl sw2" viewBox="0 0 200 200"><path d="M100 100m0-6a6 6 0 1 1-6 6 12 12 0 1 1 12 12 20 20 0 1 1-20-20 30 30 0 1 1 30 30 42 42 0 1 1-42-42 56 56 0 1 1 56 56"/></svg>
+  <div class="batfly b1"><svg viewBox="-15 -7 30 13"><path class="wing" d="M0 0 C-2-3-5-4-7-2-8-5-11-6-14-5-11-4-11-1-12 1-9 0-7 1-5 3-3 2-1 2 0 4 1 2 3 2 5 3 7 1 9 0 12 1 11-1 11-4 14-5 11-6 8-5 7-2 5-4 2-3 0 0Z"/></svg></div>
+  <div class="batfly b2"><svg viewBox="-15 -7 30 13"><path class="wing" d="M0 0 C-2-3-5-4-7-2-8-5-11-6-14-5-11-4-11-1-12 1-9 0-7 1-5 3-3 2-1 2 0 4 1 2 3 2 5 3 7 1 9 0 12 1 11-1 11-4 14-5 11-6 8-5 7-2 5-4 2-3 0 0Z"/></svg></div>
+  <div class="batfly b3"><svg viewBox="-15 -7 30 13"><path class="wing" d="M0 0 C-2-3-5-4-7-2-8-5-11-6-14-5-11-4-11-1-12 1-9 0-7 1-5 3-3 2-1 2 0 4 1 2 3 2 5 3 7 1 9 0 12 1 11-1 11-4 14-5 11-6 8-5 7-2 5-4 2-3 0 0Z"/></svg></div>
+</div>
 <div class="scratch" id="s1" aria-hidden="true"></div>
 <div class="scratch" id="s2" aria-hidden="true"></div>
 <div class="sweep" id="sweep" aria-hidden="true"></div>
@@ -255,7 +391,7 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
     <div class="echo" id="echo" aria-hidden="true"></div>
     <h1 class="script" id="title">daybook</h1>
     <div class="stamp"><b id="leftCount">––</b>due today</div>
-    <div class="byline"><span id="today"></span><span>side a</span><span class="status" id="status">tuning in</span><button class="out" id="signOut" type="button" hidden>sign out</button></div>
+    <div class="byline"><span id="today"></span><span>side a</span><span class="status" id="status">tuning in</span><button class="out" id="lookBtn" type="button" aria-haspopup="dialog">look ✦</button><button class="out" id="signOut" type="button" hidden>sign out</button></div>
   </header>
 
   <div class="auth pw in" id="authBox" style="--rot:-1deg" hidden>
@@ -298,6 +434,16 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="looks" id="looks" role="dialog" aria-modal="true" aria-labelledby="looksHead" hidden>
+  <div class="looks-box">
+    <div class="looks-top"><h2 id="looksHead">Pick your look</h2><button class="out" type="button" data-close>close ✕</button></div>
+    <p class="looks-note">Saved to your account, so it follows you to every device. Switch any time.</p>
+    <div class="looks-grid">
+      <button type="button" class="look-card lc-wall" data-skin-pick="wall"><span class="lc-art"><b>TODAY</b><em>daybook</em></span><span class="lc-name">The Wall</span><span class="lc-desc">grunge · xerox · halftone ink</span></button>
+      <button type="button" class="look-card lc-whimsy" data-skin-pick="whimsy"><span class="lc-art"><b>Today</b><em>daybook</em><svg viewBox="-15 -7 30 13"><path d="M0 0 C-2-3-5-4-7-2-8-5-11-6-14-5-11-4-11-1-12 1-9 0-7 1-5 3-3 2-1 2 0 4 1 2 3 2 5 3 7 1 9 0 12 1 11-1 11-4 14-5 11-6 8-5 7-2 5-4 2-3 0 0Z"/></svg></span><span class="lc-name">Dark Whimsy</span><span class="lc-desc">pastel goth · bats · moonlit haze</span></button>
+    </div>
+  </div>
+</div>
 
 <script>
 const AREAS=[
@@ -626,7 +772,12 @@ function toast(msg,undo){
 /* ---------- halftone ink field ---------- */
 const cv=$("#field"),cx=cv.getContext("2d"),fx=$("#fx"),fc=fx.getContext("2d");
 let W=0,H=0,cell=10,ptr={x:-9999,y:-9999,s:0},boost=0,parts=[];
-function resize(){W=innerWidth;H=innerHeight;cv.width=W;cv.height=H;fx.width=W;fx.height=H;cell=W<600?8:10}
+const SKINS={
+  wall:{name:"The Wall",desc:"grunge · xerox · halftone ink",theme:"#06080b",dot1:"#8fe6ff",dot2:"#c8e86b",a1:.42,a2:.22,cell:[8,10],echo:"Today"},
+  whimsy:{name:"Dark Whimsy",desc:"pastel goth · bats · moonlit haze",theme:"#160e1c",dot1:"#ff9ecf",dot2:"#c9a7ff",a1:.55,a2:.45,cell:[14,18]},
+};
+const skin=()=>SKINS[document.documentElement.dataset.skin]?document.documentElement.dataset.skin:"wall";
+function resize(){W=innerWidth;H=innerHeight;cv.width=W;cv.height=H;fx.width=W;fx.height=H;const c=SKINS[skin()].cell;cell=W<600?c[0]:c[1]}
 addEventListener("resize",()=>{resize();if(REDUCED)drawField(0)});resize();
 addEventListener("pointermove",e=>{ptr.x=e.clientX;ptr.y=e.clientY;ptr.s=Math.min(1,ptr.s+.08)},{passive:true});
 addEventListener("pointerdown",e=>{ptr.x=e.clientX;ptr.y=e.clientY;ptr.s=1;boost=Math.min(1,boost+.35)},{passive:true});
@@ -648,21 +799,60 @@ function drawField(t){
       if(rad<.5)continue;
       path.moveTo(x+rad,y);path.arc(x,y,rad,0,6.283);
     }}
-  cx.globalAlpha=.42;cx.fillStyle="#8fe6ff";cx.fill(path);
-  cx.save();cx.translate(3,2);cx.globalAlpha=.22;cx.fillStyle="#c8e86b";cx.fill(path);cx.restore();
+  const S=SKINS[skin()];
+  cx.globalAlpha=S.a1;cx.fillStyle=S.dot1;cx.fill(path);
+  cx.save();cx.translate(skin()==="whimsy"?cell*.6:3,skin()==="whimsy"?-cell*.4:2);cx.globalAlpha=S.a2;cx.fillStyle=S.dot2;cx.fill(path);cx.restore();
   cx.globalAlpha=1;
 }
+const BAT=new Path2D("M0 0 C-2-3-5-4-7-2-8-5-11-6-14-5-11-4-11-1-12 1-9 0-7 1-5 3-3 2-1 2 0 4 1 2 3 2 5 3 7 1 9 0 12 1 11-1 11-4 14-5 11-6 8-5 7-2 5-4 2-3 0 0Z");
+const SPARK=new Path2D("M0-5 L1.2-1.2 5 0 1.2 1.2 0 5-1.2 1.2-5 0-1.2-1.2Z");
 function burst(x,y,col,n){
   if(REDUCED)return;
   if(col.startsWith("var("))col=getComputedStyle(document.documentElement).getPropertyValue(col.slice(4,-1)).trim()||"#8fe6ff";
+  if(skin()==="whimsy"){
+    const cols=["#2a1830","#ff9ecf","#c9a7ff","#ffe7b3"];
+    for(let k=0;k<Math.ceil(n*.7);k++){const bat=k%3===0,a=-Math.PI/2+(Math.random()-.5)*2.4,s=1+Math.random()*3.2;
+      parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:bat?.7+Math.random()*.7:.5+Math.random()*.8,life:1,col:bat?"#2a1830":cols[1+k%3],kind:bat?"bat":"spark",ph:Math.random()*6.28,spin:(Math.random()-.5)*.2})}
+    return;
+  }
   for(let k=0;k<n;k++){const a=Math.random()*6.283,s=1.5+Math.random()*5;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,r:1+Math.random()*3.5,life:1,col})}
 }
 function drawFx(){
   fc.clearRect(0,0,W,H);
-  parts=parts.filter(p=>(p.life-=.028)>0);
-  for(const p of parts){p.vy+=.18;p.vx*=.97;p.x+=p.vx;p.y+=p.vy;fc.globalAlpha=p.life;fc.fillStyle=p.col;fc.beginPath();fc.arc(p.x,p.y,p.r*(.6+p.life*.4),0,6.283);fc.fill()}
+  parts=parts.filter(p=>(p.life-=p.kind?.014:.028)>0);
+  for(const p of parts){
+    fc.globalAlpha=Math.min(1,p.life*1.4);fc.fillStyle=p.col;
+    if(p.kind){
+      p.ph+=.35;p.x+=p.vx+Math.sin(p.ph*.4)*.6;p.y+=p.vy;p.vy-=.02;p.vx*=.99;
+      fc.save();fc.translate(p.x,p.y);
+      if(p.kind==="bat"){fc.scale(p.r*1.6,p.r*1.6*(.55+.45*Math.abs(Math.sin(p.ph))));fc.fill(BAT)}
+      else{fc.rotate(p.ph*p.spin*10);fc.scale(p.r,p.r);fc.shadowColor=p.col;fc.shadowBlur=8;fc.fill(SPARK)}
+      fc.restore();
+    }else{p.vy+=.18;p.vx*=.97;p.x+=p.vx;p.y+=p.vy;fc.beginPath();fc.arc(p.x,p.y,p.r*(.6+p.life*.4),0,6.283);fc.fill()}
+  }
   fc.globalAlpha=1;
 }
+
+/* ---------- looks (skins) ---------- */
+function applySkin(id,{animate=false,persist=false}={}){
+  if(!SKINS[id])id="wall";
+  const prev=skin();document.documentElement.dataset.skin=id;save("db.skin",id);
+  document.querySelector('meta[name="theme-color"]').content=SKINS[id].theme;
+  resize();
+  document.querySelectorAll("[data-skin-pick]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.skinPick===id));
+  if(animate&&prev!==id){sweep();setEcho(true);glitch();if(id==="whimsy")for(let k=0;k<5;k++)setTimeout(()=>burst(W*(.15+.7*Math.random()),H*(.55+.3*Math.random()),"#ff9ecf",18),k*120)}
+  if(persist&&db)sb.auth.updateUser({data:{skin:id}}).catch(()=>{});
+}
+function openLooks(){$("#looks").hidden=false;$("#looks [aria-pressed=true]")?.focus()}
+function closeLooks(){$("#looks").hidden=true;$("#lookBtn").focus()}
+$("#lookBtn").addEventListener("click",openLooks);
+$("#looks").addEventListener("click",e=>{
+  if(e.target.id==="looks"||e.target.closest("[data-close]"))return closeLooks();
+  const b=e.target.closest("[data-skin-pick]");if(b){applySkin(b.dataset.skinPick,{animate:true,persist:true});setTimeout(closeLooks,350)}
+});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#looks").hidden)closeLooks()});
+/* stars for the night sky */
+{const n=$("#stars");let h="";for(let i=0;i<46;i++)h+=`<i style="left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*70).toFixed(1)}%;--s:${(1+Math.random()*2.2).toFixed(1)}px;--d:${(Math.random()*4).toFixed(2)}s;--t:${(2.5+Math.random()*3).toFixed(2)}s"></i>`;n.innerHTML=h}
 const warpMap=document.getElementById("warpMap");
 let last=0;const t0=performance.now();
 function frame(now){
@@ -750,11 +940,14 @@ $("#authForm").addEventListener("submit",async e=>{
 $("#signOut").addEventListener("click",()=>sb.auth.signOut());
 
 /* ---------- boot ---------- */
+applySkin(load("db.skin","wall"));
+const syncSkin=s=>{const k=s?.user?.user_metadata?.skin;if(k&&k!==skin())applySkin(k,{animate:true})};
 setEcho(false);renderAddAreas();
 if(!sb){$("#status").textContent="no signal";$("#authBox").hidden=false;$("#authMsg").textContent="Couldn't load the sync library. Check your connection and reload.";}
 else{
-  sb.auth.onAuthStateChange((ev,session)=>{if(session){if(!db)startSync()}else showAuth()});
-  sb.auth.getSession().then(({data})=>{if(data.session){if(!db)startSync()}else showAuth()});
+  sb.auth.onAuthStateChange((ev,session)=>{if(session){syncSkin(session);if(!db)startSync()}else showAuth()});
+  sb.auth.getSession().then(({data})=>{if(data.session){syncSkin(data.session);if(!db)startSync()}else showAuth()});
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&db)sb.auth.getUser().then(({data})=>syncSkin(data)).catch(()=>{})});
 }
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>

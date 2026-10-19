@@ -185,6 +185,35 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 .void .scr{display:block;font:400 clamp(54px,14vw,92px)/1 var(--script);color:var(--cyan);filter:url(#warp);opacity:.9}
 .void p{font:400 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ash);margin:6px 0 0}
 
+/* countdown posters */
+.cd{padding:20px 18px 18px}
+.cd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;border-bottom:3px solid var(--ink);padding-bottom:6px}
+.cd-top .big{font:400 clamp(40px,10vw,64px)/.86 var(--cond);text-transform:uppercase;overflow-wrap:anywhere}
+.cd-top small{font:700 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;text-align:right;line-height:1.5}
+.cd-hero{position:relative;display:flex;align-items:flex-end;gap:6px;margin:6px 0 2px;min-height:clamp(150px,40vw,250px)}
+.cd-num{font:400 clamp(150px,44vw,270px)/.78 var(--cond);letter-spacing:-.02em;color:var(--ink);text-shadow:5px 3px 0 rgba(143,230,255,.85),-3px -2px 0 rgba(200,232,107,.7);font-variant-numeric:tabular-nums}
+.cd-num.near{color:var(--blood)}
+.cd-days{font:400 clamp(44px,12vw,78px)/1 var(--script);transform:rotate(-8deg) translate(-6px,-18%);color:var(--ink)}
+.cd-sub{display:flex;flex-wrap:wrap;gap:6px 16px;font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.cd-clock{font-variant-numeric:tabular-nums;color:var(--blood)}
+.tally{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:4px 0 6px}
+.tally .dow{font:700 9.5px var(--mono);text-align:center;letter-spacing:.06em;color:rgba(12,14,17,.55);padding-bottom:2px}
+.cell{position:relative;aspect-ratio:1;max-width:100%;border:1.5px solid var(--ink);font:700 11px/1 var(--mono);display:grid;place-items:center;color:var(--ink);background:transparent}
+.cell.pad{border-color:transparent}
+.cell.wk{background:rgba(12,14,17,.08)}
+.cell.today{background:var(--ink);color:var(--bone)}
+.cell.zero{background:var(--blood);border-color:var(--blood);color:var(--bone)}
+.cell .dots{position:absolute;bottom:2px;left:0;right:0;display:flex;justify-content:center;gap:2px}
+.cell .dots i{width:4px;height:4px;border-radius:50%;background:var(--c)}
+.cell.today .dots i{outline:1px solid var(--bone)}
+.cd-legend{font:400 10.5px var(--mono);color:rgba(12,14,17,.65);text-transform:uppercase;letter-spacing:.08em;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.cd-legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:4px}
+.cd-act{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.cd-new{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--ink);border:1px dashed #2c323b;padding:12px}
+.cd-new input[type=text]{flex:1;min-width:140px;border:0;border-bottom:1px solid #2c323b;background:transparent;font:400 15px var(--mono);padding:6px 0}
+.cd-new input:focus{outline:none;border-bottom-color:var(--acid)}
+.cd-new .lbl{font:700 11px var(--mono);color:var(--acid);letter-spacing:.1em;text-transform:uppercase;width:100%}
+
 /* notes posters */
 .pads{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:40px 22px}
 .pad textarea{width:100%;min-height:230px;border:0;background:transparent;resize:vertical;padding:0;color:var(--ink);font:400 14px/1.65 var(--mono)}
@@ -278,8 +307,9 @@ const AREAS=[
   {id:"personal",name:"Personal",c:"var(--personal)",pc:"var(--p-personal)"},
 ];
 const AREA=Object.fromEntries(AREAS.map(a=>[a.id,a]));
-const TABS=[["today","Today","today"],["upcoming","Next","upcoming"],["all","All","all"],["notes","Notes","notes"],["done","Done","done"]];
-const ECHO={today:"Today",upcoming:"Next up",all:"Everything",notes:"Notes",done:"Done"};
+const TABS=[["today","Today","today"],["upcoming","Next","upcoming"],["count","Countdown","count"],["all","All","all"],["notes","Notes","notes"],["done","Done","done"]];
+const ECHO={today:"Today",upcoming:"Next up",count:"T-minus",all:"Everything",notes:"Notes",done:"Done"};
+let cds=load("db.cds",[]);
 const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const FINE=matchMedia("(pointer: fine)").matches;
 const $=s=>document.querySelector(s);
@@ -355,14 +385,15 @@ $("#addForm").addEventListener("submit",async e=>{
 const passFilter=i=>state.filter==="all"||i.area===state.filter;
 function counts(){
   const t=dayOffset(0),open=items.filter(i=>!i.done&&passFilter(i));
-  return{today:open.filter(i=>!i.due||i.due<=t).length,upcoming:open.filter(i=>i.due>t).length,all:open.length,done:items.filter(i=>i.done&&passFilter(i)).length,notes:""};
+  const next=cds.filter(c=>c.at>=t).sort((a,b)=>a.at.localeCompare(b.at))[0];
+  return{today:open.filter(i=>!i.due||i.due<=t).length,upcoming:open.filter(i=>i.due>t).length,count:next?daysUntil(next.at)+"d":"",all:open.length,done:items.filter(i=>i.done&&passFilter(i)).length,notes:""};
 }
-const TROT=[-2.5,1.8,-1.2,2.4,-1.8];
+const TROT=[-2.5,1.8,-1.2,2.4,-1.8,1.4];
 function renderTabs(){
   const c=counts();
   $("#leftCount").textContent=ready&&db?pad2(items.filter(i=>!i.done&&i.due&&i.due<=dayOffset(0)).length):"––";
   $("#tabs").innerHTML=TABS.map(([id,n],k)=>`<button class="tab" role="tab" style="--r:${TROT[k]}deg" data-tab="${id}" aria-selected="${state.tab===id}">${n}${c[id]!==""&&ready?`<span class="n">${c[id]}</span>`:""}</button>`).join("");
-  $("#filters").hidden=state.tab==="notes";
+  $("#filters").hidden=state.tab==="notes"||state.tab==="count";
   $("#filters").innerHTML=[{id:"all",name:"Everything"},...AREAS].map(a=>`<button class="chip" style="${a.c?`--c:${a.c}`:""}" data-filter="${a.id}" aria-pressed="${state.filter===a.id}">${a.c?'<span class="dot"></span>':""}${a.name}</button>`).join("");
 }
 $("#tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b||b.dataset.tab===state.tab)return;
@@ -427,6 +458,9 @@ function renderView(){
     html=fut.length?Object.keys(days).sort().map(d=>{const[w,dd]=longDate(d);return poster(w,"",days[d],{note:dd?`${dd} · ${days[d].length}`:""})}).join(""):voidHTML("empty road","give a task a date and it shows up here");
   }else if(state.tab==="all"){
     html=open.length?AREAS.filter(a=>state.filter==="all"||a.id===state.filter).map(a=>poster(a.name,"",open.filter(i=>i.area===a.id))).join(""):voidHTML("all clear","no open tasks");
+  }else if(state.tab==="count"){
+    const list=[...cds].sort((a,b)=>a.at.localeCompare(b.at));
+    html=(list.length?list.map(cdPoster).join(""):voidHTML("no countdowns","add an exam, deadline or trip below"))+cdFormHTML();
   }else if(state.tab==="done"){
     const d=items.filter(i=>i.done&&passFilter(i)).sort((a,b)=>b.doneAt-a.doneAt).slice(0,200);
     html=d.length?poster("Played","the archive",d):voidHTML("nothing yet","tick a task and it lands here");
@@ -438,6 +472,89 @@ function renderView(){
   }
   v.innerHTML=`<div class="board">${html}</div>`;
   fresh=new Set();
+  if(state.tab==="count"){tick();if(animIn||firstPaint)rollNumbers()}
+}
+
+/* ---------- countdowns ---------- */
+function daysUntil(s){const a=new Date(dayOffset(0)+"T00:00"),b=new Date(s+"T00:00");return Math.round((b-a)/864e5)}
+function cdPoster(c){
+  const k=pIdx++,n=daysUntil(c.at),d=new Date(c.at+"T00:00");
+  const dateTxt=d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+  let hero,sub="";
+  if(n>0){
+    const w=Math.floor(n/7),r=n%7;
+    hero=`<span class="cd-num${n<=7?" near":""}" data-roll="${n}">${n}</span><span class="cd-days">${n===1?"day":"days"}</span>`;
+    sub=`<span class="cd-clock" data-at="${c.at}">--</span><span>${w?`${w} wk${w>1?"s":""}${r?` + ${r} d`:""}`:`${r} d`}</span>`;
+  }else if(n===0)hero=`<span class="cd-num near">0</span><span class="cd-days">it's today</span>`;
+  else hero=`<span class="cd-num" style="opacity:.35">${-n}</span><span class="cd-days">days ago</span>`;
+  return `<div class="pw${firstPaint||animIn?" in":""}" style="--rot:${ROT[k%ROT.length]}deg;--d:${k*90}ms" data-cd="${c.id}">
+    <span class="tape" style="transform:rotate(${k%2?5:-4}deg)"></span>
+    <div class="poster cd" style="--jag:${jag(k+21)}">
+      <div class="cd-top"><span class="big">${esc(c.title)}</span><small>t-minus<br>${esc(dateTxt)}</small></div>
+      <div class="cd-hero">${hero}</div>
+      <div class="cd-sub">${sub}</div>
+      ${n>0?tallyHTML(c.at,n):""}
+      <div class="cd-act">${state.confirmDel==="cd:"+c.id?`<button class="ghost" data-cdact="keep">Keep</button><button class="ghost del" data-cdact="del-yes">Remove countdown</button>`:`<button class="ghost del" data-cdact="del">Remove</button>`}</div>
+    </div></div>`;
+}
+function tallyHTML(at,n){
+  if(n>120)return"";
+  const start=new Date(dayOffset(0)+"T00:00"),dows=["M","T","W","T","F","S","S"],lead=(start.getDay()+6)%7;
+  const byDay={};items.filter(i=>!i.done&&i.due).forEach(i=>(byDay[i.due]??=[]).push(i));
+  let h=`<div class="tally" aria-label="Calendar of the ${n} days left">${dows.map(x=>`<span class="dow">${x}</span>`).join("")}`;
+  for(let i=0;i<lead;i++)h+=`<span class="cell pad"></span>`;
+  for(let i=0;i<=n;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);const key=ymd(d),wd=(d.getDay()+6)%7,tasks=byDay[key]||[];
+    const cls=i===0?"today":i===n?"zero":wd>4?"wk":"";
+    const tip=tasks.length?` title="${esc(tasks.map(t=>t.title).join(" · "))}"`:"";
+    h+=`<span class="cell ${cls}"${tip}>${i===n?"✕":d.getDate()}${tasks.length?`<span class="dots">${tasks.slice(0,4).map(t=>`<i style="--c:${(AREA[t.area]||AREAS[0]).pc}"></i>`).join("")}</span>`:""}</span>`;
+  }
+  return h+`</div><div class="cd-legend"><span>dots = tasks due</span>${AREAS.map(a=>`<span><i style="--c:${a.pc}"></i>${a.name}</span>`).join("")}</div>`;
+}
+function cdFormHTML(){
+  return `<form class="cd-new" id="cdForm" autocomplete="off"><span class="lbl">+ new countdown</span>
+    <input type="text" id="cdTitle" placeholder="e.g. Trip to Goa" aria-label="Countdown name" maxlength="120">
+    <input type="date" id="cdAt" aria-label="Date" min="${dayOffset(0)}">
+    <button class="btn" type="submit">Start</button></form>`;
+}
+function tick(){
+  const now=new Date();
+  document.querySelectorAll(".cd-clock").forEach(el=>{
+    let ms=new Date(el.dataset.at+"T00:00")-now;if(ms<0)ms=0;
+    const d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60,s=Math.floor(ms/1e3)%60;
+    el.textContent=`${d}d ${pad2(h)}h ${pad2(m)}m ${pad2(s)}s`;
+  });
+}
+setInterval(()=>{if(state.tab==="count"&&!document.hidden)tick()},1000);
+function rollNumbers(){
+  if(REDUCED)return;
+  document.querySelectorAll("[data-roll]").forEach(el=>{
+    const target=+el.dataset.roll,t0=performance.now(),dur=900;
+    const step=now=>{const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=Math.round(target*e);if(p<1)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
+  });
+}
+$("#view").addEventListener("submit",async e=>{
+  if(e.target.id!=="cdForm")return;e.preventDefault();
+  const title=$("#cdTitle").value.trim(),at=$("#cdAt").value;
+  if(!title||!at){toast("Give it a name and a date");return}
+  const r=e.target.querySelector(".btn").getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,"#c8e86b",24);pulse(.6);
+  try{const{error}=await sb.from("countdowns").insert({title,at});if(error)throw error;$("#cdTitle").value="";$("#cdAt").value="";document.activeElement?.blur();await loadCds(true)}
+  catch{toast("Couldn't save that countdown")}
+});
+$("#view").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-cdact]");if(!b)return;
+  const id=b.closest("[data-cd]").dataset.cd,act=b.dataset.cdact;
+  if(act==="del"){state.confirmDel="cd:"+id;renderView()}
+  else if(act==="keep"){state.confirmDel=null;renderView()}
+  else if(act==="del-yes"){state.confirmDel=null;const w=b.closest(".pw");w.classList.add("shred");await wait(400);
+    try{const{error}=await sb.from("countdowns").delete().eq("id",id);if(error)throw error;await loadCds(true)}catch{toast("Couldn't remove it");renderView()}}
+});
+async function loadCds(anim){
+  const{data,error}=await sb.from("countdowns").select("id,title,at").order("at");
+  if(error)return;cds=data;save("db.cds",cds);
+  const ae=document.activeElement,typing=ae&&ae.closest&&ae.closest("#cdForm");
+  renderTabs();if(state.tab==="count"&&!typing){animIn=!!anim;renderView();animIn=false;bindTilt()}
 }
 function render(anim){animIn=!!anim;renderTabs();renderView();animIn=false;bindTilt()}
 
@@ -587,7 +704,7 @@ async function refresh(){
     next.forEach(i=>known.add(i.id));items=next;save("db.cache",items);
     ready=true;$("#status").textContent="live";$("#addBtn").disabled=!$("#newTitle").value.trim();
     const ae=document.activeElement;
-    if(state.tab==="notes"||(ae&&/^ed-/.test(ae.id)))renderTabs();else{render(!wasReady);firstPaint=false}
+    if(state.tab==="notes"||(ae&&/^ed-/.test(ae.id))||(ae&&ae.closest&&ae.closest("#cdForm")))renderTabs();else{render(!wasReady);firstPaint=false}
   })();
   try{await refreshing}finally{refreshing=null;if(again){again=false;refresh()}}
 }
@@ -595,13 +712,13 @@ async function loadPads(){
   const{data}=await sb.from("pads").select("area,body");
   (data||[]).forEach(r=>{pads[r.area]=r.body;const ta=document.getElementById("pad-"+r.area);if(ta&&document.activeElement!==ta&&ta.value!==r.body)ta.value=r.body});
 }
-let rt;const soon=()=>{clearTimeout(rt);rt=setTimeout(()=>{refresh();loadPads()},250)};
+let rt;const soon=()=>{clearTimeout(rt);rt=setTimeout(()=>{refresh();loadPads();loadCds(false)},250)};
 function startSync(){
   db=sb;$("#authBox").hidden=true;$("#app").hidden=false;$("#signOut").hidden=false;
   const cached=load("db.cache",null);if(cached&&!ready){items=cached;cached.forEach(i=>known.add(i.id));ready=true;render(true)}
-  refresh();loadPads();
+  refresh();loadPads();loadCds(true);
   if(channel)sb.removeChannel(channel);
-  channel=sb.channel("daybook").on("postgres_changes",{event:"*",schema:"public",table:"items"},soon).on("postgres_changes",{event:"*",schema:"public",table:"pads"},soon).subscribe();
+  channel=sb.channel("daybook").on("postgres_changes",{event:"*",schema:"public",table:"items"},soon).on("postgres_changes",{event:"*",schema:"public",table:"pads"},soon).on("postgres_changes",{event:"*",schema:"public",table:"countdowns"},soon).subscribe();
 }
 function showAuth(){
   db=null;ready=false;items=[];known.clear();

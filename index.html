@@ -162,7 +162,53 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 .sub .ar{color:var(--pc);font-weight:700}
 .sub .nt::before{content:"✎ "}
 .dur{font:700 12px/22px var(--mono);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
-.dur.late{color:var(--blood);animation:throb 1.4s ease-in-out infinite}
+.dur.late{color:var(--bone);background:var(--blood);padding:0 6px;font-size:13px;transform:rotate(-3deg);animation:throb 1.4s ease-in-out infinite}
+.sub .carry{color:var(--blood);font-weight:700}
+.has-late small{color:var(--blood)}
+
+/* schedule (calendar) */
+.calbar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font:400 11px var(--mono);color:var(--ash);text-transform:uppercase;letter-spacing:.1em}
+.calbar .err{color:var(--ember);text-transform:none;letter-spacing:0;width:100%}
+.ev{display:grid;grid-template-columns:78px 5px minmax(0,1fr);gap:10px;align-items:start;padding:9px 0;border-top:1px dashed rgba(12,14,17,.25)}
+.evs>.ev:first-child,.nowline+.ev{border-top:0}
+.ev .tm{font:700 12.5px/1.3 var(--mono);text-transform:uppercase;font-variant-numeric:tabular-nums}
+.ev .tm span{display:block;font-weight:400;opacity:.6;font-size:11px}
+.ev .bar{align-self:stretch;min-height:24px;background:var(--fc)}
+.ev .tt{font:700 17px/1.2 var(--body);overflow-wrap:anywhere}
+.ev .lc{display:block;font:400 10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.65;margin-top:2px;overflow-wrap:anywhere}
+.ev.past{opacity:.4}
+.ev.now{background:linear-gradient(90deg,rgba(209,58,44,.14),transparent 70%)}
+.ev.now .tm::after{content:"now";display:inline-block;margin-top:3px;background:var(--blood);color:var(--bone);padding:1px 6px;font-size:10px;letter-spacing:.08em}
+.nowline{position:relative;border-top:2px solid var(--blood);margin:10px 0 6px}
+.nowline span{position:absolute;left:0;top:-10px;background:var(--blood);color:var(--bone);font:700 10px var(--mono);padding:2px 6px;text-transform:uppercase;letter-spacing:.08em}
+.allday{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.allday span{font:700 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;border:1.5px solid var(--fc);border-left-width:6px;padding:3px 8px;overflow-wrap:anywhere}
+.freeday{font:400 12px var(--mono);opacity:.6;text-transform:uppercase;letter-spacing:.08em;padding:6px 0}
+.alsodue{margin-top:10px;padding-top:8px;border-top:3px solid var(--ink);font:400 12.5px/1.5 var(--mono);display:flex;flex-wrap:wrap;gap:4px 14px}
+.alsodue b{text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;width:100%}
+.alsodue span{overflow-wrap:anywhere}
+.alsodue i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:6px}
+.alsodue .lt{color:var(--blood);font-weight:700}
+.calmore{display:flex;justify-content:center}
+.calset ol{margin:4px 0 14px;padding-left:22px;display:flex;flex-direction:column;gap:8px;font:400 14.5px/1.45 var(--body)}
+.calset ol b{font-weight:700}
+.calset .warn{font:400 12px/1.5 var(--mono);opacity:.75;margin:0 0 12px}
+.calset form,.calmanage form{display:flex;flex-direction:column;gap:8px}
+.calset label{font:700 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.calset input{width:100%;border:1px solid rgba(12,14,17,.4);background:rgba(255,255,255,.4);color:var(--ink);padding:10px 12px;font:400 14px var(--mono)}
+.calset .btn{background:var(--ink);color:var(--bone)}
+.calset .msg{font:400 12.5px var(--mono);color:var(--blood);margin:0;min-height:1em}
+.calmanage{background:var(--ink);border:1px dashed #2c323b;padding:12px 14px;color:var(--pale)}
+.calmanage summary{cursor:pointer;font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acid)}
+.calmanage ul{list-style:none;margin:12px 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.calmanage li{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font:400 13px var(--mono)}
+.calmanage li i{width:10px;height:10px;background:var(--fc)}
+.calmanage li .sp{flex:1}
+.calmanage .ghost{color:var(--pale);border-color:#3a414b}
+.calmanage .ghost.del{color:#ff8b7d;border-color:#ff8b7d}
+.calmanage input{width:100%;border:0;border-bottom:1px solid #2c323b;background:transparent;font:400 14px var(--mono);padding:6px 0;color:var(--pale)}
+.calmanage input:focus{outline:none;border-bottom-color:var(--acid)}
+.calmanage .msg{font:400 12px var(--mono);color:#ff8b7d;margin:0;min-height:1em}
 @keyframes throb{50%{opacity:.45}}
 .fresh{animation:print .8s cubic-bezier(.3,.8,.2,1)}
 @keyframes print{0%{clip-path:inset(0 0 100% 0);filter:brightness(2.2) contrast(1.6)}60%{clip-path:inset(0);filter:brightness(1.5)}100%{filter:none}}
@@ -229,7 +275,9 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 
 @media (max-width:520px){.detail{padding-left:0}.row{grid-template-columns:20px 22px minmax(0,1fr) auto;gap:8px}.mast{min-height:235px}.stamp{top:auto;bottom:52px}.byline{gap:4px 10px;font-size:10.5px;letter-spacing:.08em}}
 /* ---------- look picker (all skins) ---------- */
-.byline>*{background:color-mix(in srgb,var(--void) 72%,transparent);padding:1px 4px}
+.byline>*,.calbar>*{background:color-mix(in srgb,var(--void) 72%,transparent);padding:1px 4px}
+.filters .chip,.calmore .chip{background:color-mix(in srgb,var(--void) 80%,transparent)}
+.poster h2{flex-wrap:wrap}
 .night{display:none}
 .looks{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
   padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
@@ -352,6 +400,18 @@ html[data-skin="whimsy"]{
 [data-skin="whimsy"] .looks{background:rgba(22,14,28,.6)}
 [data-skin="whimsy"] .looks-box{border-radius:26px;box-shadow:0 0 60px -10px rgba(255,158,207,.5)}
 [data-skin="whimsy"] .look-card{border-radius:20px}
+[data-skin="whimsy"] .dur.late{border-radius:999px;transform:none}
+[data-skin="whimsy"] .ev{border-top-style:dotted}
+[data-skin="whimsy"] .ev .bar{border-radius:99px}
+[data-skin="whimsy"] .ev.now{background:linear-gradient(90deg,rgba(255,158,207,.3),transparent 70%);border-radius:12px}
+[data-skin="whimsy"] .ev.now .tm::after,[data-skin="whimsy"] .nowline span{border-radius:999px}
+[data-skin="whimsy"] .nowline{border-top-style:dashed}
+[data-skin="whimsy"] .allday span{border-radius:999px;border-left-width:1.5px;background:color-mix(in srgb,var(--fc) 14%,transparent)}
+[data-skin="whimsy"] .alsodue{border-top:2px dotted rgba(42,24,48,.45)}
+[data-skin="whimsy"] .calset input{border-radius:12px}
+[data-skin="whimsy"] .calmanage{border-radius:20px;background:rgba(42,24,48,.72);border-color:rgba(201,167,255,.35)}
+[data-skin="whimsy"] .calmanage summary{color:var(--cyan)}
+[data-skin="whimsy"] .calmanage li i{border-radius:50%}
 @media (max-width:520px){[data-skin="whimsy"] .mast{min-height:255px}[data-skin="whimsy"] .stamp{width:74px;height:74px;right:6px;bottom:52px}[data-skin="whimsy"] .stamp b{font-size:26px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.sweep{display:none}}
 </style>
@@ -453,8 +513,8 @@ const AREAS=[
   {id:"personal",name:"Personal",c:"var(--personal)",pc:"var(--p-personal)"},
 ];
 const AREA=Object.fromEntries(AREAS.map(a=>[a.id,a]));
-const TABS=[["today","Today","today"],["upcoming","Next","upcoming"],["count","Countdown","count"],["all","All","all"],["notes","Notes","notes"],["done","Done","done"]];
-const ECHO={today:"Today",upcoming:"Next up",count:"T-minus",all:"Everything",notes:"Notes",done:"Done"};
+const TABS=[["today","Today","today"],["upcoming","Next","upcoming"],["cal","Schedule","cal"],["count","Countdown","count"],["all","All","all"],["notes","Notes","notes"],["done","Done","done"]];
+const ECHO={today:"Today",upcoming:"Next up",cal:"Schedule",count:"T-minus",all:"Everything",notes:"Notes",done:"Done"};
 let cds=load("db.cds",[]);
 const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const FINE=matchMedia("(pointer: fine)").matches;
@@ -469,6 +529,7 @@ function durLabel(s){
   if(s===dayOffset(0))return"today";if(s===dayOffset(1))return"tmrw";if(s===dayOffset(-1))return"yday";
   const d=new Date(s+"T00:00");return `${pad2(d.getDate())} ${d.toLocaleDateString("en-IN",{month:"short"})}`;
 }
+function lateTxt(due){const n=-daysUntil(due);return n===1?"deadline passed yesterday":`deadline passed ${n} days ago`}
 function longDate(s){
   if(s===dayOffset(1))return["Tomorrow",""];
   const d=new Date(s+"T00:00");
@@ -532,18 +593,20 @@ const passFilter=i=>state.filter==="all"||i.area===state.filter;
 function counts(){
   const t=dayOffset(0),open=items.filter(i=>!i.done&&passFilter(i));
   const next=cds.filter(c=>c.at>=t).sort((a,b)=>a.at.localeCompare(b.at))[0];
-  return{today:open.filter(i=>!i.due||i.due<=t).length,upcoming:open.filter(i=>i.due>t).length,count:next?daysUntil(next.at)+"d":"",all:open.length,done:items.filter(i=>i.done&&passFilter(i)).length,notes:""};
+  const now=Date.now(),left=cal?.events?cal.events.filter(e=>!e.a&&ymd(new Date(e.s))===t&&Date.parse(e.e)>now).length:0;
+  return{today:open.filter(i=>!i.due||i.due<=t).length,upcoming:open.filter(i=>i.due>t).length,cal:left||"",count:next?daysUntil(next.at)+"d":"",all:open.length,done:items.filter(i=>i.done&&passFilter(i)).length,notes:""};
 }
-const TROT=[-2.5,1.8,-1.2,2.4,-1.8,1.4];
+const TROT=[-2.5,1.8,-1.2,2.4,-1.8,1.4,-2];
 function renderTabs(){
   const c=counts();
   $("#leftCount").textContent=ready&&db?pad2(items.filter(i=>!i.done&&i.due&&i.due<=dayOffset(0)).length):"––";
   $("#tabs").innerHTML=TABS.map(([id,n],k)=>`<button class="tab" role="tab" style="--r:${TROT[k]}deg" data-tab="${id}" aria-selected="${state.tab===id}">${n}${c[id]!==""&&ready?`<span class="n">${c[id]}</span>`:""}</button>`).join("");
-  $("#filters").hidden=state.tab==="notes"||state.tab==="count";
+  $("#filters").hidden=state.tab==="notes"||state.tab==="count"||state.tab==="cal";
   $("#filters").innerHTML=[{id:"all",name:"Everything"},...AREAS].map(a=>`<button class="chip" style="${a.c?`--c:${a.c}`:""}" data-filter="${a.id}" aria-pressed="${state.filter===a.id}">${a.c?'<span class="dot"></span>':""}${a.name}</button>`).join("");
 }
 $("#tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b||b.dataset.tab===state.tab)return;
-  state.tab=b.dataset.tab;state.open=null;save("db.tab",state.tab);sweep();setEcho(true);render(true)});
+  state.tab=b.dataset.tab;state.open=null;save("db.tab",state.tab);sweep();setEcho(true);render(true);
+  if(state.tab==="cal"&&(!cal||Date.now()-(cal.at||0)>3e5||cal.fromDay!==dayOffset(0)))loadCal()});
 $("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-filter]");if(!b)return;state.filter=b.dataset.filter;save("db.filter",state.filter);render(true)});
 function sweep(){if(REDUCED)return;const s=$("#sweep");s.classList.remove("go");void s.offsetWidth;s.classList.add("go");pulse(.8)}
 
@@ -557,8 +620,8 @@ function rowHTML(i,n){
       <span class="no" aria-hidden="true">${pad2(n+1)}</span>
       <button class="check" data-act="toggle" aria-label="${i.done?"Mark not done":"Mark done"}: ${esc(i.title)}">${CHECK}</button>
       <button class="main" data-act="open" aria-expanded="${open}"><span class="t">${esc(i.title)}${SCRIB}</span>
-        <span class="sub"><span class="ar">${a.name}</span>${i.notes?'<span class="nt">notes</span>':""}</span></button>
-      <span class="dur${late?" late":""}">${late?"late ":""}${durLabel(i.due)}</span>
+        <span class="sub"><span class="ar">${a.name}</span>${late?`<span class="carry">↻ carried over · ${lateTxt(i.due)}</span>`:""}${i.notes?'<span class="nt">notes</span>':""}</span></button>
+      <span class="dur${late?" late":""}"${late?` title="Was due ${durLabel(i.due)}"`:""}>${late?`−${-daysUntil(i.due)}d`:durLabel(i.due)}</span>
     </div>`;
   if(open){
     h+=`<div class="detail">
@@ -597,13 +660,16 @@ function renderView(){
   if(state.tab==="today"){
     const late=open.filter(i=>i.due&&i.due<t),now=open.filter(i=>i.due===t),any=open.filter(i=>!i.due);
     const doneToday=items.filter(i=>i.done&&passFilter(i)&&i.doneAt&&ymd(new Date(i.doneAt))===t);
-    html=poster("Overdue","",late,{cls:"over"})+poster("Today","side a",now)+poster("Anytime","b-sides",any)+poster("Played","today",doneToday);
+    const day=[...late,...now],nt=`${day.length} ${day.length===1?"track":"tracks"}${late.length?` · ${late.length} carried over`:""}`;
+    html=poster("Today","side a",day,{cls:late.length?"has-late":"",note:nt})+poster("Anytime","b-sides",any)+poster("Played","today",doneToday);
     if(!late.length&&!now.length&&!any.length)html=voidHTML("silence","nothing due today · add something above")+html;
   }else if(state.tab==="upcoming"){
     const fut=open.filter(i=>i.due>t),days={};fut.forEach(i=>(days[i.due]??=[]).push(i));
     html=fut.length?Object.keys(days).sort().map(d=>{const[w,dd]=longDate(d);return poster(w,"",days[d],{note:dd?`${dd} · ${days[d].length}`:""})}).join(""):voidHTML("empty road","give a task a date and it shows up here");
   }else if(state.tab==="all"){
     html=open.length?AREAS.filter(a=>state.filter==="all"||a.id===state.filter).map(a=>poster(a.name,"",open.filter(i=>i.area===a.id))).join(""):voidHTML("all clear","no open tasks");
+  }else if(state.tab==="cal"){
+    html=calHTML();
   }else if(state.tab==="count"){
     const list=[...cds].sort((a,b)=>a.at.localeCompare(b.at));
     html=(list.length?list.map(cdPoster).join(""):voidHTML("no countdowns","add an exam, deadline or trip below"))+cdFormHTML();
@@ -620,6 +686,116 @@ function renderView(){
   fresh=new Set();
   if(state.tab==="count"){tick();if(animIn||firstPaint)rollNumbers()}
 }
+
+/* ---------- schedule (calendar feeds) ---------- */
+let cal=load("db.cal",null),calDays=14,calLoading=false,calAgain=false,calErr="",calMsg="";
+const FEEDC=["var(--p-studies)","var(--p-personal)","var(--p-projects)","var(--p-travel)"];
+const fmtT=iso=>new Date(iso).toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"});
+const typingCal=()=>{const a=document.activeElement;return a&&a.closest&&a.closest("#calForm,#calForm2")};
+async function loadCal(){
+  if(!db)return;if(calLoading){calAgain=true;return}calLoading=true;
+  const st=$("#calStatus");if(st)st.textContent="syncing…";
+  try{
+    const{data,error}=await sb.functions.invoke("calendar",{body:{fromDay:dayOffset(0),days:calDays,tz:Intl.DateTimeFormat().resolvedOptions().timeZone}});
+    if(error)throw error;cal={...data,at:Date.now()};save("db.cal",cal);calErr="";
+  }catch{calErr=navigator.onLine?"Couldn't reach your calendar right now. Showing the last copy.":"You're offline. Showing the last copy."}
+  calLoading=false;renderTabs();
+  if(state.tab==="cal"&&!typingCal()){renderView();bindTilt()}
+  if(calAgain){calAgain=false;loadCal()}
+}
+function calSetupHTML(){
+  const k=pIdx++;
+  return `<div class="pw${firstPaint||animIn?" in":""}" style="--rot:${ROT[k%ROT.length]}deg;--d:${k*90}ms"><span class="tape"></span>
+  <div class="poster calset" style="--jag:${jag(k+31)}">
+    <h2><span><span class="big">Hook up</span> <span class="scr">your calendar</span></span><small>one time</small></h2>
+    <ol>
+      <li>On a <b>laptop</b>, open <b>calendar.google.com</b>. The phone app doesn't have this option.</li>
+      <li>On the left under <b>My calendars</b>, hover your calendar, click the <b>⋮</b> next to it, then <b>Settings and sharing</b>.</li>
+      <li>Scroll down to <b>Integrate calendar</b> and copy the <b>Secret address in iCal format</b> (it ends in <b>.ics</b>).</li>
+      <li>Paste it below and press <b>Connect</b>.</li>
+    </ol>
+    <p class="warn">Keep that link private: anyone who has it can see your calendar. Daybook only reads it. College accounts sometimes hide this option; a personal Gmail calendar always has it.</p>
+    ${calFormHTML("calForm")}
+  </div></div>`;
+}
+function calFormHTML(id){
+  return `<form id="${id}" autocomplete="off">
+    <label for="${id}-url">Secret iCal address</label>
+    <input id="${id}-url" type="url" inputmode="url" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics" required>
+    <label for="${id}-name">Name it (optional)</label>
+    <input id="${id}-name" type="text" maxlength="60" placeholder="Classes, Personal…">
+    <button class="btn" type="submit">Connect</button>
+    <p class="msg" role="status">${esc(calMsg)}</p>
+  </form>`;
+}
+function calManageHTML(){
+  const fi=cal.feeds.map((f,k)=>`<li style="--fc:${FEEDC[k%FEEDC.length]}"><i></i><span>${esc(f.name)}</span><span class="sp"></span>
+    ${state.confirmDel==="feed:"+f.id?`<button class="ghost" data-calact="keep">Keep</button><button class="ghost del" data-calact="del-yes" data-id="${f.id}">Disconnect</button>`:`<button class="ghost del" data-calact="del" data-id="${f.id}">Remove</button>`}</li>`).join("");
+  return `<details class="calmanage"${state.confirmDel?.startsWith?.("feed:")||calMsg?" open":""}><summary>Calendars (${cal.feeds.length}) · add another</summary><ul>${fi}</ul>${calFormHTML("calForm2")}</details>`;
+}
+function calHTML(){
+  if(!cal)return voidHTML("tuning in…","fetching your schedule");
+  if(!cal.feeds?.length)return calSetupHTML();
+  const t=dayOffset(0),t0=new Date(t+"T00:00").getTime(),now=Date.now(),byDay={},all={};
+  const fi=Object.fromEntries(cal.feeds.map((f,k)=>[f.id,k]));
+  for(const e of cal.events||[]){
+    const fc=FEEDC[(fi[e.f]??0)%FEEDC.length];
+    if(e.a){if(e.e<=t)continue;for(let d=e.s<t?t:e.s,g=0;d<e.e&&g<70;g++){(all[d]??=[]).push({...e,fc});const x=new Date(d+"T00:00");x.setDate(x.getDate()+1);d=ymd(x)}}
+    else{if(Date.parse(e.e)<=t0&&Date.parse(e.s)<t0)continue;let k=ymd(new Date(e.s));if(k<t)k=t;(byDay[k]??=[]).push({...e,fc})}
+  }
+  const due={};items.filter(i=>!i.done&&i.due).forEach(i=>(due[i.due<t?t:i.due]??=[]).push(i));
+  let h="";
+  for(let n=0;n<calDays;n++){
+    const d=dayOffset(n),ev=(byDay[d]||[]).sort((a,b)=>a.s.localeCompare(b.s)),ad=all[d]||[],du=due[d]||[];
+    if(n>0&&!ev.length&&!ad.length&&!du.length)continue;
+    h+=calDayHTML(d,n,ev,ad,du,now);
+  }
+  const errs=(cal.errors||[]).map(x=>`<span class="err">⚠ ${esc((cal.feeds.find(f=>f.id===x.id)||{}).name||"Calendar")}: ${esc(x.msg)}</span>`).join("");
+  const ago=cal.at?Math.round((Date.now()-cal.at)/6e4):null;
+  return `<div class="calbar"><span id="calStatus">${calLoading?"syncing…":ago===null?"":ago<1?"synced just now":`synced ${ago} min ago`}</span><button class="out" type="button" data-calact="refresh">refresh</button>${calErr?`<span class="err">${esc(calErr)}</span>`:""}${errs}</div>`
+    +h+`<div class="calmore"><button class="chip" type="button" data-calact="more">${calDays<35?"Show the next 5 weeks":"Show 2 weeks"}</button></div>`+calManageHTML();
+}
+function calDayHTML(d,n,ev,ad,du,now){
+  const k=pIdx++,dt=new Date(d+"T00:00"),[w,dd]=n===0?["Today",""]:longDate(d);
+  const short=`${pad2(dt.getDate())}.${pad2(dt.getMonth()+1)}`,cnt=ev.length+ad.length;
+  let rows="",lineDone=n!==0;
+  for(const e of ev){
+    const s=Date.parse(e.s),en=Date.parse(e.e),isNow=n===0&&s<=now&&now<en,past=n===0&&en<=now;
+    if(!lineDone&&s>now){rows+=`<div class="nowline"><span>now · ${fmtT(new Date(now).toISOString())}</span></div>`;lineDone=true}
+    const multi=ymd(new Date(e.e))!==ymd(new Date(e.s))&&en-s>864e5;
+    rows+=`<div class="ev${isNow?" now":""}${past?" past":""}" style="--fc:${e.fc}"><span class="tm">${fmtT(e.s)}<span>${s===en?"":multi?"→ "+durLabel(ymd(new Date(e.e))):fmtT(e.e)}</span></span><span class="bar"></span><span><span class="tt">${esc(e.t)}</span>${e.l?`<span class="lc">⌖ ${esc(e.l)}</span>`:""}</span></div>`;
+  }
+  if(!lineDone&&ev.length)rows+=`<div class="nowline"><span>done for today ✓</span></div>`;
+  const allday=ad.length?`<div class="allday">${ad.map(e=>`<span style="--fc:${e.fc}">${esc(e.t)}</span>`).join("")}</div>`:"";
+  const tasks=du.length?`<div class="alsodue"><b>also due${n===0?" / carried over":""}</b>${du.map(i=>`<span${i.due<dayOffset(0)?' class="lt"':""}><i style="--c:${(AREA[i.area]||AREAS[0]).pc}"></i>${esc(i.title)}${i.due<dayOffset(0)?` (−${-daysUntil(i.due)}d)`:""}</span>`).join("")}</div>`:"";
+  return `<div class="pw${firstPaint||animIn?" in":""}" style="--rot:${ROT[k%ROT.length]}deg;--d:${Math.min(k,6)*80}ms">
+    <span class="tape" style="transform:rotate(${k%2?5:-4}deg)"></span>
+    <div class="poster" style="--jag:${jag(k+41)}">
+      <h2><span><span class="big">${esc(w)}</span>${n===0?' <span class="scr">on air</span>':""}</span><small>${dd||short} · ${cnt?`${cnt} ${cnt===1?"event":"events"}`:"no events"}</small></h2>
+      ${allday}${ev.length?`<div class="evs">${rows}</div>`:(ad.length?"":`<div class="freeday">nothing on the calendar</div>`)}${tasks}
+    </div></div>`;
+}
+$("#view").addEventListener("submit",async e=>{
+  if(e.target.id!=="calForm"&&e.target.id!=="calForm2")return;e.preventDefault();
+  const id=e.target.id,url=$(`#${id}-url`).value.trim(),name=$(`#${id}-name`).value.trim()||"Google Calendar",msg=e.target.querySelector(".msg");
+  const ok=/^(https|webcal):\/\//i.test(url)&&/(\.ics(\?|$)|\/ical\/|webcal:)/i.test(url);
+  if(!ok){msg.textContent=/calendar\.google\.com/.test(url)?"That's the normal calendar link. Copy the Secret address in iCal format instead (it ends in .ics).":"That doesn't look like a calendar address. It should end in .ics.";return}
+  if((cal?.feeds?.length||0)>=8){msg.textContent="That's the limit of 8 calendars.";return}
+  msg.textContent="connecting…";
+  const{error}=await sb.from("calendar_feeds").insert({name:name.slice(0,60),url});
+  if(error){msg.textContent="Couldn't save it. Try again.";return}
+  calMsg="";const r=e.target.querySelector(".btn").getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,"#c8e86b",26);pulse(.7);
+  document.activeElement?.blur();cal={...(cal||{}),feeds:[...(cal?.feeds||[]),{id:"pending",name}],events:cal?.events||[]};loadCal();
+});
+$("#view").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-calact]");if(!b)return;const act=b.dataset.calact;
+  if(act==="refresh")loadCal();
+  else if(act==="more"){calDays=calDays<35?35:14;renderView();loadCal()}
+  else if(act==="del"){state.confirmDel="feed:"+b.dataset.id;renderView()}
+  else if(act==="keep"){state.confirmDel=null;renderView()}
+  else if(act==="del-yes"){state.confirmDel=null;const{error}=await sb.from("calendar_feeds").delete().eq("id",b.dataset.id);if(error)toast("Couldn't remove it");loadCal()}
+});
+setInterval(()=>{if(state.tab!=="cal"||document.hidden||!db)return;if(Date.now()-(cal?.at||0)>6e5||cal?.fromDay!==dayOffset(0))loadCal();else if(!typingCal()){renderTabs();renderView();bindTilt()}},6e4);
 
 /* ---------- countdowns ---------- */
 function daysUntil(s){const a=new Date(dayOffset(0)+"T00:00"),b=new Date(s+"T00:00");return Math.round((b-a)/864e5)}
@@ -906,7 +1082,7 @@ let rt;const soon=()=>{clearTimeout(rt);rt=setTimeout(()=>{refresh();loadPads();
 function startSync(){
   db=sb;$("#authBox").hidden=true;$("#app").hidden=false;$("#signOut").hidden=false;
   const cached=load("db.cache",null);if(cached&&!ready){items=cached;cached.forEach(i=>known.add(i.id));ready=true;render(true)}
-  refresh();loadPads();loadCds(true);
+  refresh();loadPads();loadCds(true);loadCal();
   if(channel)sb.removeChannel(channel);
   channel=sb.channel("daybook").on("postgres_changes",{event:"*",schema:"public",table:"items"},soon).on("postgres_changes",{event:"*",schema:"public",table:"pads"},soon).on("postgres_changes",{event:"*",schema:"public",table:"countdowns"},soon).subscribe();
 }
@@ -915,7 +1091,7 @@ function showAuth(){
   $("#app").hidden=true;$("#signOut").hidden=true;$("#authBox").hidden=false;$("#status").textContent="signed out";
 }
 addEventListener("focus",()=>db&&soon());
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&db)soon()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&db){soon();if(state.tab==="cal"&&Date.now()-(cal?.at||0)>3e5)loadCal()}});
 addEventListener("online",()=>db&&soon());
 addEventListener("offline",()=>{$("#status").textContent="offline"});
 
@@ -937,7 +1113,7 @@ $("#authForm").addEventListener("submit",async e=>{
     if(error){msg.className="msg err";msg.textContent=/confirm/i.test(error.message)?"Confirm your email first (check your inbox), then sign in.":"Wrong email or password.";}
   }
 });
-$("#signOut").addEventListener("click",()=>sb.auth.signOut());
+$("#signOut").addEventListener("click",()=>{try{["db.cache","db.cds","db.cal"].forEach(k=>localStorage.removeItem(k))}catch{}cal=null;cds=[];sb.auth.signOut()});
 
 /* ---------- boot ---------- */
 applySkin(load("db.skin","wall"));

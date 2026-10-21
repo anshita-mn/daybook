@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daybook</title>
 <meta name="theme-color" content="#06080b">
-<script>try{var s=JSON.parse(localStorage.getItem("db.skin"));if(s)document.documentElement.dataset.skin=s}catch(e){}</script>
+<script>
+/* Always run the live site: frozen Netlify copies (deploy links like abc123--daybook-anshita.netlify.app) jump to the real one */
+(function(){var H="daybook-anshita.netlify.app",h=location.hostname;if(h!==H&&/(^|--)daybook-anshita\.netlify\.app$/.test(h))location.replace("https://"+H+"/"+location.hash)})();
+try{var s=JSON.parse(localStorage.getItem("db.skin"));if(s)document.documentElement.dataset.skin=s}catch(e){}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

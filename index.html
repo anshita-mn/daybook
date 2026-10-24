@@ -284,6 +284,15 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 .gx:hover{color:var(--blood)}
 .gempty{font:400 12px var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.55;padding:8px 0}
 .gfoot{display:flex;justify-content:flex-end;margin-top:10px}
+.groc form{flex-wrap:wrap}
+#parcForm input[type=text]{flex:1 1 100%}
+#parcForm input[type=date]{flex:1 1 auto}
+.groc form input[type=date]{flex:0 0 auto;border:1px solid rgba(12,14,17,.35);padding:4px 8px;font-size:12.5px;color:var(--ink);background:rgba(255,255,255,.35)}
+.pi .gn{display:block}
+.eta{display:block;font:700 10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.6;margin-top:2px}
+.eta.late{color:var(--blood);opacity:1;animation:throb 1.4s ease-in-out infinite}
+.eta.now{color:var(--pc);opacity:1}
+.gi.got .eta{display:none}
 
 /* notes posters */
 .pads{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:40px 22px}
@@ -706,7 +715,7 @@ function renderView(){
     html=`<div class="pads">${AREAS.map((a,k)=>`<div class="pw${firstPaint||animIn?" in":""}" style="--rot:${ROT[k]}deg;--d:${k*90}ms"><span class="tape" style="transform:rotate(${k%2?5:-4}deg)"></span>
       <div class="poster pad" style="--jag:${jag(k+11)};--pc:${a.pc}"><h2><span class="big">${a.name}</span><small id="padstat-${a.id}">notes</small></h2><span class="ink"></span>
       <textarea id="pad-${a.id}" data-pad="${a.id}" placeholder="${ph[a.id]}">${esc(pads[a.id]||"")}</textarea></div></div>`).join("")}</div>`;
-    html=groceryHTML()+html;
+    html=groceryHTML()+parcelHTML()+html;
   }
   v.innerHTML=`<div class="board">${html}</div>`;
   fresh=new Set();
@@ -755,6 +764,59 @@ $("#view").addEventListener("click",async e=>{
     await loadGroc(false);
   }else if(act==="rm"){li.classList.add("shred");await wait(380);
     const{error}=await sb.from("groceries").delete().eq("id",id);if(error)toast("Couldn't remove that");await loadGroc(false)}
+});
+
+/* ---------- parcels ---------- */
+let parc=load("db.parc",[]);
+function parcelHTML(){
+  const k=pIdx++,t=dayOffset(0),out=parc.filter(p=>!p.arrived);
+  const sorted=[...parc].sort((a,b)=>(a.arrived?1:0)-(b.arrived?1:0)||(a.eta||"9999").localeCompare(b.eta||"9999"));
+  const rows=parc.length?sorted.map(p=>{
+    const late=!p.arrived&&p.eta&&p.eta<t,today=!p.arrived&&p.eta===t;
+    return `<li class="gi pi${p.arrived?" got":""}" data-pid="${p.id}">
+      <button class="check" data-pact="tick" aria-label="${p.arrived?"Mark not arrived":"Mark arrived"}: ${esc(p.name)}">${CHECK}</button>
+      <span class="gw"><span class="gn">${esc(p.name)}${SCRIB}</span>
+        ${p.eta?`<span class="eta${late?" late":""}${today?" now":""}">${p.arrived?"":late?`late · was due ${durLabel(p.eta)}`:today?"arriving today":`due ${durLabel(p.eta)}`}</span>`:""}</span>
+      <button class="gx" data-pact="rm" aria-label="Remove ${esc(p.name)}">✕</button>
+    </li>`}).join(""):`<li class="gempty">nothing on the way</li>`;
+  const arrived=parc.length-out.length;
+  return `<div class="pw${firstPaint||animIn?" in":""}" style="--rot:${ROT[k%ROT.length]}deg;--d:${k*90}ms" id="parcBox">
+    <span class="tape" style="transform:rotate(5deg)"></span>
+    <div class="poster groc" style="--jag:${jag(k+71)};--pc:var(--p-travel)">
+      <h2><span><span class="big">Parcels</span> <span class="scr">on the way</span></span><small>${parc.length?`${out.length} out for delivery`:"order tracker"}</small></h2>
+      <form id="parcForm" autocomplete="off">
+        <input id="parcNew" type="text" maxlength="160" placeholder="what did you order?" aria-label="Parcel name">
+        <input id="parcEta" type="date" aria-label="Expected date" title="Expected delivery (optional)">
+        <button class="btn" type="submit">Add</button>
+      </form>
+      <ul class="glist">${rows}</ul>
+      ${arrived?`<div class="gfoot"><button class="ghost" type="button" data-pact="clear">Clear the ${arrived} delivered</button></div>`:""}
+    </div></div>`;
+}
+async function loadParc(anim){
+  const{data,error}=await sb.from("parcels").select("id,name,eta,arrived").order("created_at");
+  if(error)return;parc=data;save("db.parc",parc);
+  const ae=document.activeElement;
+  if(state.tab==="notes"&&!["parcNew","parcEta","grocNew"].includes(ae?.id)){animIn=!!anim;renderView();animIn=false;bindTilt()}
+}
+$("#view").addEventListener("submit",async e=>{
+  if(e.target.id!=="parcForm")return;e.preventDefault();
+  const inp=$("#parcNew"),name=inp.value.trim(),eta=$("#parcEta").value||null;if(!name)return;
+  inp.value="";$("#parcEta").value="";const r=inp.getBoundingClientRect();burst(r.right-20,r.top+12,"var(--travel)",16);
+  const{error}=await sb.from("parcels").insert({name,eta});
+  if(error){toast("Couldn't add that parcel");inp.value=name;return}
+  await loadParc(false);$("#parcNew")?.focus();
+});
+$("#view").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-pact]");if(!b||!db)return;const act=b.dataset.pact;
+  if(act==="clear"){const{error}=await sb.from("parcels").delete().eq("arrived",true);if(error)toast("Couldn't clear those");return loadParc(false)}
+  const li=b.closest("[data-pid]");if(!li)return;const id=li.dataset.pid,p=parc.find(x=>x.id===id);
+  if(act==="tick"){
+    if(!p.arrived){li.classList.add("striking");const r=b.getBoundingClientRect();burst(r.left+11,r.top+11,"var(--travel)",18);await wait(380)}
+    const{error}=await sb.from("parcels").update({arrived:!p.arrived}).eq("id",id);if(error)toast("Couldn't save that");
+    await loadParc(false);
+  }else if(act==="rm"){li.classList.add("shred");await wait(380);
+    const{error}=await sb.from("parcels").delete().eq("id",id);if(error)toast("Couldn't remove that");await loadParc(false)}
 });
 
 /* ---------- schedule (calendar feeds) ---------- */
@@ -1148,13 +1210,13 @@ async function loadPads(){
   const{data}=await sb.from("pads").select("area,body");
   (data||[]).forEach(r=>{pads[r.area]=r.body;const ta=document.getElementById("pad-"+r.area);if(ta&&document.activeElement!==ta&&ta.value!==r.body)ta.value=r.body});
 }
-let rt;const soon=()=>{clearTimeout(rt);rt=setTimeout(()=>{refresh();loadPads();loadCds(false);loadGroc(false)},250)};
+let rt;const soon=()=>{clearTimeout(rt);rt=setTimeout(()=>{refresh();loadPads();loadCds(false);loadGroc(false);loadParc(false)},250)};
 function startSync(){
   db=sb;$("#authBox").hidden=true;$("#app").hidden=false;$("#signOut").hidden=false;
   const cached=load("db.cache",null);if(cached&&!ready){items=cached;cached.forEach(i=>known.add(i.id));ready=true;render(true)}
-  refresh();loadPads();loadCds(true);loadCal();loadGroc(true);
+  refresh();loadPads();loadCds(true);loadCal();loadGroc(true);loadParc(true);
   if(channel)sb.removeChannel(channel);
-  channel=sb.channel("daybook").on("postgres_changes",{event:"*",schema:"public",table:"items"},soon).on("postgres_changes",{event:"*",schema:"public",table:"pads"},soon).on("postgres_changes",{event:"*",schema:"public",table:"countdowns"},soon).on("postgres_changes",{event:"*",schema:"public",table:"groceries"},soon).subscribe();
+  channel=sb.channel("daybook").on("postgres_changes",{event:"*",schema:"public",table:"items"},soon).on("postgres_changes",{event:"*",schema:"public",table:"pads"},soon).on("postgres_changes",{event:"*",schema:"public",table:"countdowns"},soon).on("postgres_changes",{event:"*",schema:"public",table:"groceries"},soon).on("postgres_changes",{event:"*",schema:"public",table:"parcels"},soon).subscribe();
 }
 function showAuth(){
   db=null;ready=false;items=[];known.clear();
@@ -1183,7 +1245,7 @@ $("#authForm").addEventListener("submit",async e=>{
     if(error){msg.className="msg err";msg.textContent=/confirm/i.test(error.message)?"Confirm your email first (check your inbox), then sign in.":"Wrong email or password.";}
   }
 });
-$("#signOut").addEventListener("click",()=>{try{["db.cache","db.cds","db.cal","db.groc"].forEach(k=>localStorage.removeItem(k))}catch{}cal=null;cds=[];groc=[];sb.auth.signOut()});
+$("#signOut").addEventListener("click",()=>{try{["db.cache","db.cds","db.cal","db.groc","db.parc"].forEach(k=>localStorage.removeItem(k))}catch{}cal=null;cds=[];groc=[];parc=[];sb.auth.signOut()});
 
 /* ---------- boot ---------- */
 applySkin(load("db.skin","wall"));

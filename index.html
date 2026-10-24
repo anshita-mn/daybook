@@ -265,6 +265,26 @@ input[type=date]{border:1px solid #2c323b;background:transparent;padding:4px 8px
 .cd-new input:focus{outline:none;border-bottom-color:var(--acid)}
 .cd-new .lbl{font:700 11px var(--mono);color:var(--acid);letter-spacing:.1em;text-transform:uppercase;width:100%}
 
+/* grocery checklist */
+.groc form{display:flex;gap:8px;margin:0 0 10px}
+.groc form input{flex:1;min-width:0;border:0;border-bottom:2px solid rgba(12,14,17,.3);background:transparent;color:var(--ink);font:400 15px var(--mono);padding:6px 2px}
+.groc form input:focus{outline:none;border-bottom-color:var(--pc)}
+.groc form .btn{background:var(--ink);color:var(--bone)}
+.glist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.gi{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px dashed rgba(12,14,17,.25);--c:var(--personal);--pc:var(--p-personal)}
+.gi:first-child{border-top:0}
+.gw{flex:1;min-width:0}
+.gn{position:relative;display:inline;font:700 16px/1.25 var(--body);overflow-wrap:anywhere}
+.gi.got .gn{color:rgba(12,14,17,.45)}
+.gi.got .scrib{opacity:1;clip-path:inset(0)}
+.gi.striking .scrib{opacity:1;animation:draw .38s cubic-bezier(.6,0,.3,1) forwards}
+.gi.got .check{background:var(--pc)}
+.gi.got .check svg{opacity:1}
+.gx{border:0;background:transparent;color:rgba(12,14,17,.45);font:700 14px var(--mono);padding:2px 6px;line-height:1}
+.gx:hover{color:var(--blood)}
+.gempty{font:400 12px var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.55;padding:8px 0}
+.gfoot{display:flex;justify-content:flex-end;margin-top:10px}
+
 /* notes posters */
 .pads{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:40px 22px}
 .pad textarea{width:100%;min-height:230px;border:0;background:transparent;resize:vertical;padding:0;color:var(--ink);font:400 14px/1.65 var(--mono)}
@@ -400,6 +420,8 @@ html[data-skin="whimsy"]{
 [data-skin="whimsy"] .cd-new .lbl{color:var(--cyan)}
 /* notes + picker */
 [data-skin="whimsy"] .pad .ink{border-radius:999px}
+[data-skin="whimsy"] .groc form input{border-radius:0}
+[data-skin="whimsy"] .gi{border-top-style:dotted}
 [data-skin="whimsy"] .looks{background:rgba(22,14,28,.6)}
 [data-skin="whimsy"] .looks-box{border-radius:26px;box-shadow:0 0 60px -10px rgba(255,158,207,.5)}
 [data-skin="whimsy"] .look-card{border-radius:20px}
@@ -684,11 +706,56 @@ function renderView(){
     html=`<div class="pads">${AREAS.map((a,k)=>`<div class="pw${firstPaint||animIn?" in":""}" style="--rot:${ROT[k]}deg;--d:${k*90}ms"><span class="tape" style="transform:rotate(${k%2?5:-4}deg)"></span>
       <div class="poster pad" style="--jag:${jag(k+11)};--pc:${a.pc}"><h2><span class="big">${a.name}</span><small id="padstat-${a.id}">notes</small></h2><span class="ink"></span>
       <textarea id="pad-${a.id}" data-pad="${a.id}" placeholder="${ph[a.id]}">${esc(pads[a.id]||"")}</textarea></div></div>`).join("")}</div>`;
+    html=groceryHTML()+html;
   }
   v.innerHTML=`<div class="board">${html}</div>`;
   fresh=new Set();
   if(state.tab==="count"){tick();if(animIn||firstPaint)rollNumbers()}
 }
+
+/* ---------- grocery list ---------- */
+let groc=load("db.groc",[]);
+function groceryHTML(){
+  const k=pIdx++,got=groc.filter(g=>g.got).length;
+  const rows=groc.length?groc.map((g,n)=>`<li class="gi${g.got?" got":""}" data-gid="${g.id}">
+      <button class="check" data-gact="tick" aria-label="${g.got?"Put back":"Got"}: ${esc(g.name)}">${CHECK}</button>
+      <span class="gw"><span class="gn">${esc(g.name)}${SCRIB}</span></span>
+      <button class="gx" data-gact="rm" aria-label="Remove ${esc(g.name)}">✕</button>
+    </li>`).join(""):`<li class="gempty">nothing on the list yet</li>`;
+  return `<div class="pw${firstPaint||animIn?" in":""}" style="--rot:${ROT[k%ROT.length]}deg;--d:${k*90}ms" id="grocBox">
+    <span class="tape" style="transform:rotate(-4deg)"></span>
+    <div class="poster groc" style="--jag:${jag(k+61)};--pc:var(--p-personal)">
+      <h2><span><span class="big">Groceries</span> <span class="scr">personal</span></span><small>${groc.length?`${got}/${groc.length} in the basket`:"shopping list"}</small></h2>
+      <form id="grocForm" autocomplete="off"><input id="grocNew" type="text" maxlength="120" placeholder="add an item… (milk, eggs, shampoo)" aria-label="Add a grocery item"><button class="btn" type="submit">Add</button></form>
+      <ul class="glist">${rows}</ul>
+      ${got?`<div class="gfoot"><button class="ghost" type="button" data-gact="clear">Clear the ${got} ticked</button></div>`:""}
+    </div></div>`;
+}
+async function loadGroc(anim){
+  const{data,error}=await sb.from("groceries").select("id,name,got").order("created_at");
+  if(error)return;groc=data;save("db.groc",groc);
+  const ae=document.activeElement;
+  if(state.tab==="notes"&&ae?.id!=="grocNew"){animIn=!!anim;renderView();animIn=false;bindTilt()}
+}
+$("#view").addEventListener("submit",async e=>{
+  if(e.target.id!=="grocForm")return;e.preventDefault();
+  const inp=$("#grocNew"),name=inp.value.trim();if(!name)return;
+  inp.value="";const r=inp.getBoundingClientRect();burst(r.right-20,r.top+12,"var(--personal)",16);
+  const{error}=await sb.from("groceries").insert({name});
+  if(error){toast("Couldn't add that item");inp.value=name;return}
+  await loadGroc(false);$("#grocNew")?.focus();
+});
+$("#view").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-gact]");if(!b||!db)return;const act=b.dataset.gact;
+  if(act==="clear"){const{error}=await sb.from("groceries").delete().eq("got",true);if(error)toast("Couldn't clear those");return loadGroc(false)}
+  const li=b.closest("[data-gid]");if(!li)return;const id=li.dataset.gid,g=groc.find(x=>x.id===id);
+  if(act==="tick"){
+    if(!g.got){li.classList.add("striking");const r=b.getBoundingClientRect();burst(r.left+11,r.top+11,"var(--personal)",14);await wait(380)}
+    const{error}=await sb.from("groceries").update({got:!g.got}).eq("id",id);if(error)toast("Couldn't save that");
+    await loadGroc(false);
+  }else if(act==="rm"){li.classList.add("shred");await wait(380);
+    const{error}=await sb.from("groceries").delete().eq("id",id);if(error)toast("Couldn't remove that");await loadGroc(false)}
+});
 
 /* ---------- schedule (calendar feeds) ---------- */
 let cal=load("db.cal",null),calDays=14,calLoading=false,calAgain=false,calErr="",calMsg="";
@@ -1081,13 +1148,13 @@ async function loadPads(){
   const{data}=await sb.from("pads").select("area,body");
   (data||[]).forEach(r=>{pads[r.area]=r.body;const ta=document.getElementById("pad-"+r.area);if(ta&&document.activeElement!==ta&&ta.value!==r.body)ta.value=r.body});
 }
-let rt;const soon=()=>{clearTimeout(rt);rt=setTimeout(()=>{refresh();loadPads();loadCds(false)},250)};
+let rt;const soon=()=>{clearTimeout(rt);rt=setTimeout(()=>{refresh();loadPads();loadCds(false);loadGroc(false)},250)};
 function startSync(){
   db=sb;$("#authBox").hidden=true;$("#app").hidden=false;$("#signOut").hidden=false;
   const cached=load("db.cache",null);if(cached&&!ready){items=cached;cached.forEach(i=>known.add(i.id));ready=true;render(true)}
-  refresh();loadPads();loadCds(true);loadCal();
+  refresh();loadPads();loadCds(true);loadCal();loadGroc(true);
   if(channel)sb.removeChannel(channel);
-  channel=sb.channel("daybook").on("postgres_changes",{event:"*",schema:"public",table:"items"},soon).on("postgres_changes",{event:"*",schema:"public",table:"pads"},soon).on("postgres_changes",{event:"*",schema:"public",table:"countdowns"},soon).subscribe();
+  channel=sb.channel("daybook").on("postgres_changes",{event:"*",schema:"public",table:"items"},soon).on("postgres_changes",{event:"*",schema:"public",table:"pads"},soon).on("postgres_changes",{event:"*",schema:"public",table:"countdowns"},soon).on("postgres_changes",{event:"*",schema:"public",table:"groceries"},soon).subscribe();
 }
 function showAuth(){
   db=null;ready=false;items=[];known.clear();
@@ -1116,7 +1183,7 @@ $("#authForm").addEventListener("submit",async e=>{
     if(error){msg.className="msg err";msg.textContent=/confirm/i.test(error.message)?"Confirm your email first (check your inbox), then sign in.":"Wrong email or password.";}
   }
 });
-$("#signOut").addEventListener("click",()=>{try{["db.cache","db.cds","db.cal"].forEach(k=>localStorage.removeItem(k))}catch{}cal=null;cds=[];sb.auth.signOut()});
+$("#signOut").addEventListener("click",()=>{try{["db.cache","db.cds","db.cal","db.groc"].forEach(k=>localStorage.removeItem(k))}catch{}cal=null;cds=[];groc=[];sb.auth.signOut()});
 
 /* ---------- boot ---------- */
 applySkin(load("db.skin","wall"));
